@@ -1,0 +1,270 @@
+卷 D： 的文件夹 PATH 列表
+卷序列号为 5E4A-99B3
+D:.
+|   .gitignore
+|   environment.yml
+|   pytest.ini
+|   README.md
+|   requirements.txt
+|   
++---.pytest_cache
+|   |   .gitignore
+|   |   CACHEDIR.TAG
+|   |   README.md
+|   |   
+|   \---v
+|       \---cache
+|               nodeids
+|               
++---app
+|   |   streamlit_app.py
+|   |   
+|   \---__pycache__
+|           streamlit_app.cpython-310.pyc
+|           streamlit_app.cpython-313.pyc
+|           
++---artifacts
+|   |   model_registry.json
+|   |   
+|   +---models
+|   |       deepfm_model.pt
+|   |       lightgbm_model.joblib
+|   |       lr_model.joblib
+|   |       
+|   \---recall
+|           item2vec_recall.csv
+|           itemcf_recall.csv
+|           merged_recall.csv
+|           popular_recall.csv
+|           
++---configs
+|       config.yaml
+|       
++---data
+|   +---processed
+|   |       feature_columns.json
+|   |       test.csv
+|   |       train.csv
+|   |       valid.csv
+|   |       
+|   +---raw
+|   |       interactions.csv
+|   |       
+|   \---samples
++---docs
+|   |   project_tree.txt
+|   |   
+|   +---figures
+|   \---screenshots
++---mlruns
+|   +---.trash
+|   +---751307697985565925
+|   |   |   meta.yaml
+|   |   |   
+|   |   +---0572100bd4894f478f79e60fc87a6761
+|   |   |   |   meta.yaml
+|   |   |   |   
+|   |   |   +---artifacts
+|   |   |   |       lightgbm_model.joblib
+|   |   |   |       
+|   |   |   +---metrics
+|   |   |   |       valid_auc
+|   |   |   |       valid_logloss
+|   |   |   |       
+|   |   |   +---params
+|   |   |   |       model_name
+|   |   |   |       target_col
+|   |   |   |       
+|   |   |   \---tags
+|   |   |           mlflow.runName
+|   |   |           mlflow.source.name
+|   |   |           mlflow.source.type
+|   |   |           mlflow.user
+|   |   |           
+|   |   +---2330e763833d49e0b30a6250d09dde64
+|   |   |   |   meta.yaml
+|   |   |   |   
+|   |   |   +---artifacts
+|   |   |   |       deepfm_model.pt
+|   |   |   |       
+|   |   |   +---metrics
+|   |   |   |       valid_auc
+|   |   |   |       valid_logloss
+|   |   |   |       
+|   |   |   +---params
+|   |   |   |       model_name
+|   |   |   |       target_col
+|   |   |   |       
+|   |   |   \---tags
+|   |   |           mlflow.runName
+|   |   |           mlflow.source.name
+|   |   |           mlflow.source.type
+|   |   |           mlflow.user
+|   |   |           
+|   |   \---546a7c90aec74bd482b6555b66aaef07
+|   |       |   meta.yaml
+|   |       |   
+|   |       +---artifacts
+|   |       |       lr_model.joblib
+|   |       |       
+|   |       +---metrics
+|   |       |       valid_auc
+|   |       |       valid_logloss
+|   |       |       
+|   |       +---params
+|   |       |       model_name
+|   |       |       target_col
+|   |       |       
+|   |       \---tags
+|   |               mlflow.runName
+|   |               mlflow.source.name
+|   |               mlflow.source.type
+|   |               mlflow.user
+|   |               
+|   \---models
++---notebooks
+|       01_data_exploration.ipynb
+|       
++---reports
+|   |   project_summary.md
+|   |   
+|   +---figures
+|   \---metrics
+|           metrics.csv
+|           metrics.json
+|           model_comparison.csv
+|           
++---scripts
+|   |   run_data_pipeline.py
+|   |   run_demo_data.py
+|   |   run_evaluate.py
+|   |   run_recall.py
+|   |   run_train_all.py
+|   |   _bootstrap.py
+|   |   
+|   \---__pycache__
+|           run_data_pipeline.cpython-313.pyc
+|           run_demo_data.cpython-313.pyc
+|           run_evaluate.cpython-313.pyc
+|           run_recall.cpython-313.pyc
+|           run_train_all.cpython-313.pyc
+|           _bootstrap.cpython-310.pyc
+|           _bootstrap.cpython-313.pyc
+|           
++---src
+|   |   __init__.py
+|   |   
+|   +---data
+|   |   |   generate_synthetic_data.py
+|   |   |   make_dataset.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           generate_synthetic_data.cpython-310.pyc
+|   |           generate_synthetic_data.cpython-313.pyc
+|   |           make_dataset.cpython-310.pyc
+|   |           make_dataset.cpython-313.pyc
+|   |           __init__.cpython-310.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---evaluation
+|   |   |   metrics.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           metrics.cpython-310.pyc
+|   |           metrics.cpython-313.pyc
+|   |           __init__.cpython-310.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---features
+|   |   |   build_features.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           build_features.cpython-310.pyc
+|   |           build_features.cpython-313.pyc
+|   |           __init__.cpython-310.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---models
+|   |   |   deepfm.py
+|   |   |   train_deepfm.py
+|   |   |   train_lightgbm.py
+|   |   |   train_lr.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           deepfm.cpython-310.pyc
+|   |           deepfm.cpython-313.pyc
+|   |           train_deepfm.cpython-310.pyc
+|   |           train_deepfm.cpython-313.pyc
+|   |           train_lightgbm.cpython-310.pyc
+|   |           train_lightgbm.cpython-313.pyc
+|   |           train_lr.cpython-310.pyc
+|   |           train_lr.cpython-313.pyc
+|   |           __init__.cpython-310.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---recall
+|   |   |   item2vec_recall.py
+|   |   |   itemcf_recall.py
+|   |   |   popular_recall.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           item2vec_recall.cpython-310.pyc
+|   |           item2vec_recall.cpython-313.pyc
+|   |           itemcf_recall.cpython-310.pyc
+|   |           itemcf_recall.cpython-313.pyc
+|   |           popular_recall.cpython-310.pyc
+|   |           popular_recall.cpython-313.pyc
+|   |           __init__.cpython-310.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---serving
+|   |   |   app.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           app.cpython-310.pyc
+|   |           app.cpython-313.pyc
+|   |           __init__.cpython-310.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   +---utils
+|   |   |   io.py
+|   |   |   logger.py
+|   |   |   mlflow_utils.py
+|   |   |   seed.py
+|   |   |   __init__.py
+|   |   |   
+|   |   \---__pycache__
+|   |           io.cpython-310.pyc
+|   |           io.cpython-313.pyc
+|   |           logger.cpython-310.pyc
+|   |           logger.cpython-313.pyc
+|   |           mlflow_utils.cpython-310.pyc
+|   |           mlflow_utils.cpython-313.pyc
+|   |           seed.cpython-310.pyc
+|   |           seed.cpython-313.pyc
+|   |           __init__.cpython-310.pyc
+|   |           __init__.cpython-313.pyc
+|   |           
+|   \---__pycache__
+|           __init__.cpython-310.pyc
+|           __init__.cpython-313.pyc
+|           
+\---tests
+    |   test_api.py
+    |   test_features.py
+    |   test_metrics.py
+    |   
+    \---__pycache__
+            test_api.cpython-313-pytest-9.0.2.pyc
+            test_api.cpython-313.pyc
+            test_features.cpython-313-pytest-9.0.2.pyc
+            test_features.cpython-313.pyc
+            test_metrics.cpython-313-pytest-9.0.2.pyc
+            test_metrics.cpython-313.pyc
+            

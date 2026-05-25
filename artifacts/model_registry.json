@@ -1,0 +1,85 @@
+{
+  "best_model": "lightgbm",
+  "model_path": "artifacts\\models\\lightgbm_model.joblib",
+  "model_type": "lightgbm",
+  "feature_columns": [
+    "user_id",
+    "item_id",
+    "category_id",
+    "brand_id",
+    "user_age_bucket",
+    "user_gender",
+    "city_level",
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "price_bucket",
+    "item_price",
+    "user_total_views",
+    "user_total_clicks",
+    "user_total_buys",
+    "user_ctr",
+    "user_cvr",
+    "item_total_views",
+    "item_total_clicks",
+    "item_total_buys",
+    "item_ctr",
+    "item_cvr",
+    "category_ctr",
+    "category_cvr",
+    "user_category_views",
+    "user_category_clicks",
+    "user_category_ctr"
+  ],
+  "sparse_features": [
+    "user_id",
+    "item_id",
+    "category_id",
+    "brand_id",
+    "user_age_bucket",
+    "user_gender",
+    "city_level",
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "price_bucket"
+  ],
+  "dense_features": [
+    "item_price",
+    "user_total_views",
+    "user_total_clicks",
+    "user_total_buys",
+    "user_ctr",
+    "user_cvr",
+    "item_total_views",
+    "item_total_clicks",
+    "item_total_buys",
+    "item_ctr",
+    "item_cvr",
+    "category_ctr",
+    "category_cvr",
+    "user_category_views",
+    "user_category_clicks",
+    "user_category_ctr"
+  ],
+  "valid_metrics": {
+    "auc": 0.5784187404347765,
+    "logloss": 0.3916770494963243
+  },
+  "all_valid_metrics": {
+    "lr": {
+      "auc": 0.5666119999129552,
+      "logloss": 0.3954704063979064
+    },
+    "lightgbm": {
+      "auc": 0.5784187404347765,
+      "logloss": 0.3916770494963243
+    },
+    "deepfm": {
+      "auc": 0.5416739013755356,
+      "logloss": 0.4199608948544963
+    }
+  },
+  "training_failures": {},
+  "created_at": "2026-05-25T10:40:54"
+}

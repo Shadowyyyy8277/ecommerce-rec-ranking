@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/CodeProjects/jd-ecommerce-rec-ranking-v2/mlruns/751307697985565925/0572100bd4894f478f79e60fc87a6761/artifacts
+end_time: 1779676843525
+entry_point_name: ''
+experiment_id: '751307697985565925'
+lifecycle_stage: active
+run_id: 0572100bd4894f478f79e60fc87a6761
+run_name: lightgbm
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779676841604
+status: 3
+tags: []
+user_id: p

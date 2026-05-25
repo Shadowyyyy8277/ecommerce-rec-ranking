@@ -1,0 +1,61 @@
+project:
+  name: jd-ecommerce-rec-ranking-v2
+  seed: 42
+  quick_mode: true
+
+paths:
+  raw_data: data/raw/interactions.csv
+  processed_dir: data/processed
+  samples_dir: data/samples
+  recall_dir: artifacts/recall
+  model_dir: artifacts/models
+  metrics_dir: reports/metrics
+  figures_dir: reports/figures
+  mlruns_dir: mlruns
+  model_registry: artifacts/model_registry.json
+
+data:
+  quick:
+    n_users: 2000
+    n_items: 1000
+    n_interactions: 50000
+  full:
+    n_users: 10000
+    n_items: 5000
+    n_interactions: 200000
+  n_categories: 50
+  n_brands: 200
+
+split:
+  train_ratio: 0.7
+  valid_ratio: 0.15
+  test_ratio: 0.15
+  split_by_time: true
+
+recall:
+  top_k: 50
+  itemcf_top_k: 50
+  item2vec_top_k: 50
+  item2vec_epochs: 2
+  embedding_dim: 32
+
+training:
+  experiment_name: jd_rec_ranking
+  target_col: label
+  lr:
+    max_iter: 1000
+  lightgbm:
+    n_estimators: 100
+    learning_rate: 0.05
+    num_leaves: 31
+  deepfm:
+    epochs: 3
+    batch_size: 512
+    embedding_dim: 16
+    lr: 0.001
+
+evaluation:
+  top_k: [5, 10, 20]
+
+serving:
+  default_top_k: 10

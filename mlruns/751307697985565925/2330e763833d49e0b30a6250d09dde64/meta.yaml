@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/CodeProjects/jd-ecommerce-rec-ranking-v2/mlruns/751307697985565925/2330e763833d49e0b30a6250d09dde64/artifacts
+end_time: 1779676854987
+entry_point_name: ''
+experiment_id: '751307697985565925'
+lifecycle_stage: active
+run_id: 2330e763833d49e0b30a6250d09dde64
+run_name: deepfm
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779676843551
+status: 3
+tags: []
+user_id: p

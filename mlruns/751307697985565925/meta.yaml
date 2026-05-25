@@ -1,0 +1,8 @@
+artifact_location: file:///D:/CodeProjects/jd-ecommerce-rec-ranking-v2/mlruns/751307697985565925
+creation_time: 1779676838409
+experiment_id: '751307697985565925'
+last_update_time: 1779676838409
+lifecycle_stage: active
+name: jd_rec_ranking
+trace_location: null
+workspace: default

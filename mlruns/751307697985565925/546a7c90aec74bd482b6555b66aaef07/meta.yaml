@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/CodeProjects/jd-ecommerce-rec-ranking-v2/mlruns/751307697985565925/546a7c90aec74bd482b6555b66aaef07/artifacts
+end_time: 1779676841576
+entry_point_name: ''
+experiment_id: '751307697985565925'
+lifecycle_stage: active
+run_id: 546a7c90aec74bd482b6555b66aaef07
+run_name: lr
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779676838637
+status: 3
+tags: []
+user_id: p
