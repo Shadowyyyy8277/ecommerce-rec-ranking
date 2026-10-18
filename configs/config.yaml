@@ -1,5 +1,5 @@
 project:
-  name: jd-ecommerce-rec-ranking-v2
+  name: ecommerce-rec-ranking
   seed: 42
   quick_mode: true
 
@@ -38,9 +38,10 @@ recall:
   item2vec_top_k: 50
   item2vec_epochs: 2
   embedding_dim: 32
+  parallel: true
 
 training:
-  experiment_name: jd_rec_ranking
+  experiment_name: ecom_rec_ranking
   target_col: label
   lr:
     max_iter: 1000
@@ -53,6 +54,7 @@ training:
     batch_size: 512
     embedding_dim: 16
     lr: 0.001
+    lr_scheduler: cosine  # options: cosine, step, none
 
 evaluation:
   top_k: [5, 10, 20]

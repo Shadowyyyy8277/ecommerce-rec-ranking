@@ -1,4 +1,13 @@
-# 电商推荐召回与 CTR 排序系统
+# 电商推荐多路召回与 CTR 排序系统 (Ecommerce Rec-Ranking)
+
+[**中文版**](README.md) | [**English Version**](README_EN.md)
+
+[![CI](https://github.com/Shadowyyyy8277/ecommerce-rec-ranking/actions/workflows/ci.yml/badge.svg)](https://github.com/Shadowyyyy8277/ecommerce-rec-ranking/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
+[![LightGBM](https://img.shields.io/badge/LightGBM-4.0%2B-brightgreen.svg)](https://lightgbm.readthedocs.io/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg)](https://pytorch.org/)
 
 一个面向电商推荐场景的端到端推荐系统项目，覆盖用户行为数据处理、多路召回、CTR 排序建模、离线评估、实验管理、在线推理服务和可视化 Demo。
 
@@ -8,15 +17,14 @@
 
 ## 项目亮点
 
-- 实现端到端推荐系统流程：数据处理、召回、排序、评估、服务化、可视化展示；
-- 实现多路召回策略：Popular Recall、ItemCF、Item2Vec；
-- 对比三类 CTR 排序模型：Logistic Regression、LightGBM、DeepFM；
-- 使用 AUC、LogLoss、HitRate@K、NDCG@K 等指标进行离线评估；
-- 使用 MLflow 记录实验过程与模型指标；
-- 使用模型注册文件管理当前最佳模型；
-- 使用 FastAPI 提供在线推荐接口；
-- 使用 Streamlit 构建推荐系统展示页面；
-- 支持模型不可用或召回为空时的热门商品 fallback 机制。
+- **端到端完整闭环**：数据仿真 → 时间切分防穿越特征 → 多路召回 → 精排模型对比 → 离线全指标评估 → 在线推理服务 → 可视化 Demo；
+- **并发多路召回与自适应去重**：支持线程池并发执行 **Popular Recall**（业务行为加权）、**ItemCF**（协同过滤与热门降权）、**Item2Vec**（PyTorch 负采样向量嵌入），融合时按最高置信度去重并屏蔽历史已购；
+- **CTR 排序与深度学习**：对比 **Logistic Regression**、**LightGBM** 与 **DeepFM**（PyTorch 实现，集成 **CosineAnnealingLR 余弦退火学习率调度器**）；
+- **统一模型注册表架构**：采用 Model Registry 模式解耦训练、评估与线上推理，新增模型零代码侵入上下游；
+- **全方位指标评测**：覆盖 AUC、LogLoss、Precision@K、Recall@K、NDCG@K、HitRate@K 以及 **MRR@K（平均倒数排名）**，并评测推理延迟与模型尺寸；
+- **高可用在线服务**：FastAPI 提供毫秒级接口，支持 Pydantic 参数校验、配置与特征只读 LRU 缓存、以及冷启动热门降级 Fallback；
+- **工业级工程标准**：现代 `pyproject.toml` 打包规范、统一 `Makefile` 命令流、Docker 与 Docker Compose 全栈编排、以及 GitHub Actions CI 自动化流水线（22 个单元与集成测试用例 100% 通过）；
+- **中英双语文档**：提供中英双语完整文档（`README.md` 与 `README_EN.md`），国际化作品集友好。
 
 ---
 
@@ -130,57 +138,102 @@ Streamlit 推荐展示 Demo
 ## 项目结构
 
 ```text
-jd-ecommerce-rec-ranking-v2
+ecommerce-rec-ranking
+├── .github/workflows/ci.yml          # GitHub Actions CI 自动化流水线
 ├── app
 │   └── streamlit_app.py              # Streamlit 推荐展示页面
 ├── artifacts
+│   ├── models/                       # 训练产出的模型权重
+│   ├── recall/                       # 召回候选集
 │   └── model_registry.json           # 当前最佳模型注册信息
 ├── configs
-│   └── config.yaml                   # 项目配置文件
+│   └── config.yaml                   # 统一项目配置文件
 ├── data
 │   ├── raw                           # 原始模拟数据
 │   └── processed                     # 处理后的训练、验证、测试数据
 ├── docs
-│   ├── project_report.md             # 项目报告
-│   └── screenshots                   # 项目截图
-├── mlruns                            # MLflow 实验记录
+│   ├── project_report.md             # 深度项目报告
+│   └── screenshots                   # 系统运行截图
+├── notebooks
+│   └── 01_data_exploration.ipynb     # 深入 EDA 与数据漏斗分析 Notebook
 ├── reports
-│   └── metrics                       # 模型评估结果
-├── scripts                           # 数据处理、召回、训练、评估脚本
+│   └── metrics                       # 离线评估指标与模型对比
+├── scripts                           # 阶段式批处理脚本
 ├── src
-│   ├── data                          # 数据生成与处理
-│   ├── features                      # 特征工程
-│   ├── recall                        # 召回模块
-│   ├── models                        # 排序模型
-│   ├── evaluation                    # 离线评估
-│   ├── serving                       # FastAPI 在线服务
-│   └── utils                         # 通用工具函数
-└── tests                             # 基础测试
+│   ├── data                          # 数据生成与校验
+│   ├── features                      # 特征工程与共享类别编码器
+│   ├── recall                        # 多路召回模块 (Popular / ItemCF / Item2Vec)
+│   ├── models                        # 排序模型 (LR / LightGBM / DeepFM) 与统一模型注册表
+│   ├── evaluation                    # 离线评估 (AUC, LogLoss, NDCG, HitRate, MRR, 延迟, 尺寸)
+│   ├── serving                       # FastAPI 在线高并发推理服务
+│   └── utils                         # 通用 IO、日志、随机种子、MLflow 工具
+├── tests                             # 单元测试与集成测试 (覆盖 API, 召回, 特征, 指标, 注册表)
+├── Dockerfile                        # 容器化镜像构建配置
+├── docker-compose.yml                # 一键编排 API + Dashboard + MLflow
+├── Makefile                          # 统一开发与运行命令
+├── pyproject.toml                    # 现代 Python 项目打包规范与依赖声明
+└── requirements.txt                  # 运行依赖列表
 ```
 
 ---
 
 ## 快速开始
 
-### 1. 克隆项目
+### 1. 克隆项目与安装
 
 ```bash
 git clone <your-repo-url>
-cd jd-ecommerce-rec-ranking-v2
+cd ecommerce-rec-ranking
+
+# 创建 conda 虚拟环境
+conda create -n rec-rank python=3.10 -y
+conda activate rec-rank
+
+# 可编辑模式安装项目（同时支持 CLI 工具与开发调试）
+pip install -e ".[dev]"
 ```
 
-### 2. 创建环境
+### 2. 方式 A：使用 Makefile 一键运行（推荐）
 
 ```bash
-conda create -n jd-rec python=3.10 -y
-conda activate jd-rec
-pip install -r requirements.txt
+# 查看所有命令
+make help
+
+# 运行全链路 Pipeline（生成数据 -> 特征工程 -> 多路召回 -> 训练对比 -> 离线评估）
+make pipeline
+
+# 启动单元测试
+make test
+
+# 启动 FastAPI 在线推理服务 (http://localhost:8000/docs)
+make serve
+
+# 启动 Streamlit 可交互 Demo (http://localhost:8501)
+make dashboard
 ```
 
-### 3. 运行训练流程
+### 3. 方式 B：使用 Docker Compose 一键启动
 
 ```bash
+# 一键构建并启动 API 服务 (8000)、Dashboard (8501) 与 MLflow (5000)
+docker compose up -d --build
+```
+
+### 4. 方式 C：分步脚本执行
+
+```bash
+# 1. 生成模拟用户交互数据并构建特征
+python scripts/run_demo_data.py
+python scripts/run_data_pipeline.py
+
+# 2. 运行多路召回 (Popular + ItemCF + Item2Vec)
+python scripts/run_recall.py
+
+# 3. 训练全量排序模型并择优注册
 python scripts/run_train_all.py
+
+# 4. 运行离线评估并生成报告指标
+python scripts/run_evaluate.py
 ```
 
 训练完成后，会生成模型文件、评估指标和模型注册文件。

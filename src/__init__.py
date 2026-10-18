@@ -1,1 +1,1 @@
-"""JD e-commerce recommendation and ranking project."""
+"""E-commerce recommendation and ranking system."""

@@ -1,6 +1,6 @@
 {
   "best_model": "lightgbm",
-  "model_path": "artifacts\\models\\lightgbm_model.joblib",
+  "model_path": "artifacts/models/lightgbm_model.joblib",
   "model_type": "lightgbm",
   "feature_columns": [
     "user_id",

@@ -4,13 +4,24 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+*.egg-info/
+dist/
+build/
+*.egg
 
-# Environment
+# Virtual Environment
 .env
 .venv/
 venv/
 env/
 .conda/
+
+# Testing & Linting
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -26,8 +37,17 @@ Thumbs.db
 # Logs
 *.log
 
-# MLflow trash
+# Data & Large Artifacts (keep dir structure via .gitkeep)
+data/raw/*.csv
+data/processed/*.csv
+artifacts/recall/*.csv
+artifacts/models/*.joblib
+artifacts/models/*.pt
+artifacts/models/*.pkl
+
+# MLflow runs
 mlruns/.trash/
+mlruns/models/
 
 # Temporary files
 *.tmp

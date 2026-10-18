@@ -9,6 +9,7 @@ import joblib
 import pandas as pd
 
 from src.evaluation.metrics import binary_classification_metrics
+from src.features.encoders import build_category_encoders, transform_sparse_dense_dataframe
 
 
 def train_lightgbm_model(
@@ -71,25 +72,6 @@ def predict_lightgbm(model_path: str | Path, df: pd.DataFrame, feature_config: D
     return pd.Series(bundle["model"].predict_proba(x)[:, 1], index=df.index)
 
 
-def _fit_category_maps(df: pd.DataFrame, sparse_features: list[str]) -> Dict[str, Dict[str, int]]:
-    """Fit category-to-code maps using train data."""
-    maps: Dict[str, Dict[str, int]] = {}
-    for col in sparse_features:
-        values = sorted(df[col].fillna("unknown").astype(str).unique().tolist())
-        maps[col] = {value: idx + 1 for idx, value in enumerate(values)}
-    return maps
-
-
-def _transform_features(
-    df: pd.DataFrame,
-    sparse_features: list[str],
-    dense_features: list[str],
-    category_maps: Dict[str, Dict[str, int]],
-) -> pd.DataFrame:
-    """Transform sparse fields to integer codes and keep dense fields numeric."""
-    transformed = pd.DataFrame(index=df.index)
-    for col in sparse_features:
-        transformed[col] = df[col].fillna("unknown").astype(str).map(category_maps[col]).fillna(0).astype("float32")
-    for col in dense_features:
-        transformed[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0).astype("float32")
-    return transformed[sparse_features + dense_features]
+# Backward compatibility aliases
+_fit_category_maps = build_category_encoders
+_transform_features = transform_sparse_dense_dataframe

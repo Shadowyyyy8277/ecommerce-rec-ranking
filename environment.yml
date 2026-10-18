@@ -1,4 +1,4 @@
-name: jd-rec
+name: rec-rank
 channels:
   - defaults
 dependencies:

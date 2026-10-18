@@ -91,7 +91,7 @@ Test
 项目整体架构如下：
 
 ```text
-jd-ecommerce-rec-ranking-v2
+ecommerce-rec-ranking
 ├── app
 │   └── streamlit_app.py              # Streamlit 推荐展示页面
 ├── artifacts

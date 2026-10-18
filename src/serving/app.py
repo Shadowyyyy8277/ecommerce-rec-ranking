@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from src.features.build_features import build_inference_features
+from src.models.registry import predict_model
 from src.utils.io import load_config, read_json, resolve_path
 from src.utils.logger import get_logger
 
@@ -161,7 +162,7 @@ def _recommend_with_model(
         feature_config=feature_config,
     )
 
-    features["score"] = _predict_by_model(
+    features["score"] = predict_model(
         registry["model_type"],
         model_path,
         features,
@@ -266,30 +267,6 @@ def _popular_items_from_train(train_df: pd.DataFrame | None, top_k: int) -> List
     return train_df["item_id"].value_counts().head(top_k).index.astype(str).tolist()
 
 
-def _predict_by_model(
-    model_type: str,
-    model_path: Path,
-    df: pd.DataFrame,
-    feature_config: Dict[str, Any],
-) -> pd.Series:
-    """Predict CTR with a saved model using lazy imports."""
-    if model_type == "lr":
-        from src.models.train_lr import predict_lr
-
-        return predict_lr(model_path, df, feature_config)
-
-    if model_type == "lightgbm":
-        from src.models.train_lightgbm import predict_lightgbm
-
-        return predict_lightgbm(model_path, df, feature_config)
-
-    if model_type == "deepfm":
-        from src.models.train_deepfm import predict_deepfm
-
-        return predict_deepfm(model_path, df, feature_config)
-
-    raise ValueError(f"Unsupported model_type: {model_type}")
-
 
 def _load_registry() -> Dict[str, Any] | None:
     """Load local model selection registry if it exists."""
@@ -327,7 +304,7 @@ def _load_feature_config() -> Dict[str, Any] | None:
 
 
 @lru_cache(maxsize=1)
-def _load_train_df() -> pd.DataFrame | None:
+def _load_train_df_cached() -> pd.DataFrame | None:
     """Load train split for metadata and fallback recommendations."""
     config = load_config()
     path = resolve_path(config["paths"]["processed_dir"]) / "train.csv"
@@ -341,3 +318,9 @@ def _load_train_df() -> pd.DataFrame | None:
     except Exception as exc:
         logger.warning("Failed to read train data: %s", exc)
         return None
+
+
+def _load_train_df() -> pd.DataFrame | None:
+    """Return a fresh copy of the cached train DataFrame to avoid mutation."""
+    df = _load_train_df_cached()
+    return df.copy() if df is not None else None

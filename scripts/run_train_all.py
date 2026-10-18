@@ -9,7 +9,8 @@ from typing import Any, Dict
 import numpy as np
 import pandas as pd
 
-from src.utils.io import load_config, read_json, resolve_path, write_json
+from src.models.registry import train_model
+from src.utils.io import load_config, read_json, resolve_path, to_relative_path, write_json
 from src.utils.logger import get_logger
 from src.utils.mlflow_utils import configure_mlflow, safe_log_artifact, safe_log_metrics, safe_log_params, safe_mlflow_start_run
 from src.utils.seed import set_global_seed
@@ -50,10 +51,10 @@ def main() -> None:
         try:
             with safe_mlflow_start_run(run_name=model_name):
                 safe_log_params({"model_name": model_name, "target_col": feature_config["target_col"]})
-                trained_path, metrics = _train_one_model(model_name, train_df, valid_df, feature_config, config, model_path)
+                trained_path, metrics = train_model(model_name, train_df, valid_df, feature_config, config, model_path)
                 safe_log_metrics({f"valid_{k}": v for k, v in metrics.items()})
                 safe_log_artifact(trained_path)
-            results[model_name] = {"model_path": str(Path(trained_path).relative_to(resolve_path("."))), "valid_metrics": metrics}
+            results[model_name] = {"model_path": to_relative_path(trained_path), "valid_metrics": metrics}
             logger.info("Model %s finished: %s", model_name, metrics)
         except Exception as exc:
             logger.exception("Model %s failed but training will continue.", model_name)
@@ -89,22 +90,6 @@ def main() -> None:
     pd.DataFrame(comparison_rows).to_csv(metrics_dir / "model_comparison.csv", index=False, encoding="utf-8")
     logger.info("Best model=%s registry saved to %s", best_model, resolve_path(config["paths"]["model_registry"]))
 
-
-def _train_one_model(model_name: str, train_df: pd.DataFrame, valid_df: pd.DataFrame, feature_config: Dict[str, Any], config: Dict[str, Any], model_path: Path):
-    """Dispatch one model training function lazily so failures are isolated."""
-    if model_name == "lr":
-        from src.models.train_lr import train_lr_model
-
-        return train_lr_model(train_df, valid_df, feature_config, config, model_path)
-    if model_name == "lightgbm":
-        from src.models.train_lightgbm import train_lightgbm_model
-
-        return train_lightgbm_model(train_df, valid_df, feature_config, config, model_path)
-    if model_name == "deepfm":
-        from src.models.train_deepfm import train_deepfm_model
-
-        return train_deepfm_model(train_df, valid_df, feature_config, config, model_path)
-    raise ValueError(f"Unknown model: {model_name}")
 
 
 def _select_best_model(results: Dict[str, Dict[str, Any]]) -> str:

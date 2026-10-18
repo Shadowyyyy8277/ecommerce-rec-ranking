@@ -12,6 +12,11 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 from src.evaluation.metrics import binary_classification_metrics
+from src.features.encoders import (
+    build_category_encoders,
+    fit_dense_scaler,
+    transform_deepfm_features,
+)
 from src.models.deepfm import DeepFM
 from src.utils.logger import get_logger
 
@@ -55,9 +60,18 @@ def train_deepfm_model(
     )
     loader = DataLoader(dataset, batch_size=int(deepfm_cfg.get("batch_size", 512)), shuffle=True)
 
+    total_epochs = int(deepfm_cfg.get("epochs", 3))
+    scheduler_name = str(deepfm_cfg.get("lr_scheduler", "cosine")).lower()
+    if scheduler_name == "cosine":
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max(1, total_epochs), eta_min=1e-6)
+    elif scheduler_name == "step":
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=max(1, total_epochs // 2), gamma=0.5)
+    else:
+        scheduler = None
+
     best_metrics: Dict[str, float] = {"auc": float("nan"), "logloss": float("inf")}
     best_state = None
-    for epoch in range(int(deepfm_cfg.get("epochs", 3))):
+    for epoch in range(total_epochs):
         model.train()
         losses = []
         progress = tqdm(loader, desc=f"deepfm epoch {epoch + 1}", leave=False)
@@ -73,9 +87,15 @@ def train_deepfm_model(
             losses.append(float(loss.detach().cpu()))
             progress.set_postfix({"loss": f"{np.mean(losses):.4f}"})
 
+        if scheduler is not None:
+            scheduler.step()
+            current_lr = scheduler.get_last_lr()[0]
+        else:
+            current_lr = float(deepfm_cfg.get("lr", 0.001))
+
         valid_pred = predict_deepfm_arrays(model, valid_sparse, valid_dense, device=device)
         metrics = binary_classification_metrics(y_valid, valid_pred)
-        logger.info("DeepFM epoch=%s loss=%.4f valid=%s", epoch + 1, float(np.mean(losses)), metrics)
+        logger.info("DeepFM epoch=%s lr=%.6f loss=%.4f valid=%s", epoch + 1, current_lr, float(np.mean(losses)), metrics)
         if _is_better(metrics, best_metrics):
             best_metrics = metrics
             best_state = {k: v.detach().cpu() for k, v in model.state_dict().items()}
@@ -112,43 +132,7 @@ def predict_deepfm(model_path: str | Path, df: pd.DataFrame, feature_config: Dic
     preds = predict_deepfm_arrays(model, sparse_x, dense_x, device=device)
     return pd.Series(preds, index=df.index)
 
-
-def build_category_encoders(df: pd.DataFrame, sparse_features: list[str]) -> Dict[str, Dict[str, int]]:
-    """Fit integer encoders for sparse categorical fields."""
-    encoders = {}
-    for col in sparse_features:
-        values = sorted(df[col].fillna("unknown").astype(str).unique().tolist())
-        encoders[col] = {value: idx + 1 for idx, value in enumerate(values)}
-    return encoders
-
-
-def fit_dense_scaler(df: pd.DataFrame, dense_features: list[str]) -> Dict[str, list[float]]:
-    """Fit mean/std normalization statistics for dense features."""
-    dense = df[dense_features].astype(float).to_numpy(dtype=np.float32)
-    mean = dense.mean(axis=0)
-    std = dense.std(axis=0)
-    std = np.where(std < 1e-6, 1.0, std)
-    return {"mean": mean.tolist(), "std": std.tolist()}
-
-
-def transform_deepfm_features(
-    df: pd.DataFrame,
-    sparse_features: list[str],
-    dense_features: list[str],
-    encoders: Dict[str, Dict[str, int]],
-    scaler: Dict[str, list[float]],
-) -> Tuple[np.ndarray, np.ndarray]:
-    """Transform a dataframe into DeepFM sparse and dense arrays."""
-    sparse_arrays = []
-    for col in sparse_features:
-        mapping = encoders[col]
-        sparse_arrays.append(df[col].fillna("unknown").astype(str).map(mapping).fillna(0).astype(int).to_numpy())
-    sparse_x = np.vstack(sparse_arrays).T.astype(np.int64)
-    dense = df[dense_features].astype(float).to_numpy(dtype=np.float32)
-    mean = np.asarray(scaler["mean"], dtype=np.float32)
-    std = np.asarray(scaler["std"], dtype=np.float32)
-    dense_x = (dense - mean) / std
-    return sparse_x, dense_x.astype(np.float32)
+# Encoder and scaler utilities are imported from src.features.encoders
 
 
 def predict_deepfm_arrays(model: DeepFM, sparse_x: np.ndarray, dense_x: np.ndarray, device: torch.device) -> np.ndarray:

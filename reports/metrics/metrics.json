@@ -18,5 +18,5 @@
   },
   "average_inference_latency_ms": 0.03681627606511029,
   "model_size_mb": 0.37021827697753906,
-  "model_path": "D:\\CodeProjects\\jd-ecommerce-rec-ranking-v2\\artifacts\\models\\lightgbm_model.joblib"
+  "model_path": "artifacts/models/lightgbm_model.joblib"
 }

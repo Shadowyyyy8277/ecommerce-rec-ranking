@@ -12,7 +12,7 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     The function is intentionally lightweight so it can be imported by any
     module without creating circular dependencies.
     """
-    logger = logging.getLogger(name or "jd_rec")
+    logger = logging.getLogger(name or "ecom_rec")
     if not logger.handlers:
         handler = logging.StreamHandler()
         formatter = logging.Formatter(

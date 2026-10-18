@@ -8,7 +8,8 @@ import pandas as pd
 
 from src.evaluation.metrics import average_inference_latency_ms, binary_classification_metrics, evaluate_topk, model_size_mb
 from src.features.build_features import build_inference_features
-from src.utils.io import load_config, read_json, resolve_path, write_json
+from src.models.registry import predict_model
+from src.utils.io import load_config, read_json, resolve_path, to_relative_path, write_json
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -39,11 +40,11 @@ def main() -> None:
     metrics_dir = resolve_path(config["paths"]["metrics_dir"])
     metrics_dir.mkdir(parents=True, exist_ok=True)
 
-    pred = _predict_by_model(registry["model_type"], model_path, test_df, feature_config)
+    pred = predict_model(registry["model_type"], model_path, test_df, feature_config)
     ctr_metrics = binary_classification_metrics(test_df[feature_config["target_col"]].to_numpy(), pred)
 
     sample_df = test_df.head(min(512, len(test_df))).copy()
-    latency = average_inference_latency_ms(lambda frame: _predict_by_model(registry["model_type"], model_path, frame, feature_config), sample_df)
+    latency = average_inference_latency_ms(lambda frame: predict_model(registry["model_type"], model_path, frame, feature_config), sample_df)
     size_mb = model_size_mb(model_path)
 
     topk_metrics = {}
@@ -53,7 +54,7 @@ def main() -> None:
         candidates = recall_df[recall_df["user_id"].isin(test_df["user_id"].unique())].copy()
         if not candidates.empty:
             candidate_features = build_inference_features(candidates, train_df, config=config, feature_config=feature_config)
-            candidate_features["score"] = _predict_by_model(registry["model_type"], model_path, candidate_features, feature_config)
+            candidate_features["score"] = predict_model(registry["model_type"], model_path, candidate_features, feature_config)
             ranked = (
                 candidate_features.groupby(["user_id", "item_id"], as_index=False)["score"]
                 .max()
@@ -75,7 +76,7 @@ def main() -> None:
         "topk": topk_metrics,
         "average_inference_latency_ms": latency,
         "model_size_mb": size_mb,
-        "model_path": str(model_path),
+        "model_path": to_relative_path(model_path),
     }
     write_json(metrics, metrics_dir / "metrics.json")
 
@@ -106,21 +107,6 @@ def main() -> None:
     logger.info("Evaluation completed. Metrics saved to %s", metrics_dir)
 
 
-def _predict_by_model(model_type: str, model_path, df: pd.DataFrame, feature_config: Dict[str, Any]) -> pd.Series:
-    """Predict with a saved model using lazy imports."""
-    if model_type == "lr":
-        from src.models.train_lr import predict_lr
-
-        return predict_lr(model_path, df, feature_config)
-    if model_type == "lightgbm":
-        from src.models.train_lightgbm import predict_lightgbm
-
-        return predict_lightgbm(model_path, df, feature_config)
-    if model_type == "deepfm":
-        from src.models.train_deepfm import predict_deepfm
-
-        return predict_deepfm(model_path, df, feature_config)
-    raise ValueError(f"Unsupported model_type: {model_type}")
 
 
 if __name__ == "__main__":
